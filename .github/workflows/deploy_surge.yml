@@ -8,6 +8,8 @@ name: Deploy Website
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -21,12 +23,25 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Runs a single command using the runners shell
+    # Instal Node JS
     - name: Install NodeJS
       uses: actions/setup-node@v2-beta
       with:
         node-version: 12
+        
+    # Install Yarn
+    - uses: borales/actions-yarn@v2.0.0
+      with: 
+        cmd: install # will run 'yarn install' command
+        
+     # Install React App with yarn
+    - name: Build React App
+      run: yarn build
+        
+    # Install Surge
     - name: Install Surge
       run: npm install -g surge
-    - name: Run Surge
-      run: surge ./ aws-bootcamp2020.surge.sh --token ${{secrets.SURGE_TOKEN}}
+    
+    # Deploy React app to surge
+    - name: Deploy React to Surge
+      run: surge ./build aws-bootcamp2020-react.surge.sh --token ${{secrets.SURGE_TOKEN}}
